@@ -3,6 +3,8 @@ using Sciensoft.Hateoas.Constants;
 using Sciensoft.Hateoas.Exceptions;
 using Sciensoft.Hateoas.Repositories;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Sciensoft.Hateoas
@@ -111,6 +113,34 @@ namespace Sciensoft.Hateoas
 
 			InMemoryPolicyRepository.InMemoryPolicies.Add(
 				new InMemoryPolicyRepository.ExternalPolicy(typeof(T), expression, host, linkKey)
+				{
+					Method = method ?? HttpMethods.Get,
+					Message = message
+				});
+
+			return this;
+		}
+
+		/// <summary>
+		/// Adds route based URI to a resource collection. 
+		/// </summary>
+		/// <author>
+		/// Jean Tovar GitHub: j3antov4r
+		///</author>  
+		/// <param name="expression">An expression for link generation, e.g. <code>l => l.Id</code>.</param>
+		/// <param name="routeName">The attribute or conventional route name.</param>
+		/// <param name="method">Resource method as per HTTP methods, e.g. GET/HEAD/POST, visit <inheritdoc path="https://tools.ietf.org/html/rfc7231#section-4"/> for more information.</param>
+		/// <param name="message">A descriptive message for the link.</param>
+		/// <returns><see cref="PolicyBuilder{T}"/> with configured policies.</returns>
+		public PolicyBuilder<T> AddCollectionLevel(Expression<Func<T, object>> expression, string routeName, string method = null, string message = null)
+		{
+			if (string.IsNullOrWhiteSpace(routeName))
+			{
+				throw new InvalidPolicyConfigurationException($"Routed policy requires '{nameof(routeName)}' argument.");
+			}
+
+			InMemoryPolicyRepository.InMemoryPolicies.Add(
+				new InMemoryPolicyRepository.CollectionLevelPolicy(typeof(T), expression, routeName)
 				{
 					Method = method ?? HttpMethods.Get,
 					Message = message

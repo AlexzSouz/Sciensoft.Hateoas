@@ -1,4 +1,4 @@
-# Sciensoft.Hateoas
+# J3antovar.Hateoas-way
 
 ![Sciensoft.Hateoas Build Status](https://dev.azure.com/Sciensoft/Sciensoft/_apis/build/status/Sciensoft.Hateoas?branchName=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Sciensoft.Hateoas&metric=alert_status)](https://sonarcloud.io/dashboard?id=Sciensoft.Hateoas)
@@ -12,6 +12,8 @@ A library to help you achieve HATEOAS using a fluent language and lambda express
 Sciensoft.Hateoas threats lambda as a first-class citizen, so your configuration starts with a lambda expression. This library DO NOT enforce <a href="https://rebrand.ly/restful-explained" target="_blank">REST constraints</a> or <a href="https://rebrand.ly/richardson-maturity-model" target="_blank">Richardson Maturity Level</a>, and this has to be done by you, Sciensoft.Hateoas helps you only with the implementation of HATEOAS in your resource.
 
 Learn more about RESTful API <a href="https://restfulapi.net/" target="_blank">here</a> and Lambda Expressions <a href="https://rebrand.ly/dotnet-lambda-expressions" target="_blank">here</a>.
+
+NOTE: This is a new fork based in the original model by Sciensoft.Hateoas 
 
 ## Get Started
 
@@ -41,7 +43,8 @@ public void ConfigureServices(IServiceCollection services)
             .AddSelf(m => m.Id, "This is a GET self link.")
             .AddRoute(m => m.Id, BookController.UpdateBookById)
             .AddRoute(m => m.Id, BookController.DeleteBookById)
-            .AddCustomPath(m => m.Id, "Edit", method: HttpMethods.Post, message: "Edits resource")
+            .AddCollectionLevel(m=> m, BookController.CreateNewBook, method: HttpMethods.Post, message: "Creates new resource.") //Added by J3antov4r
+			.AddCustomPath(m => m.Id, "Edit", method: HttpMethods.Post, message: "Edits resource")
             .AddCustomPath(m => $"/change/resource/state/?id={m.Id}", "ChangeResourceState", method: HttpMethods.Post, message: "Any operation in your resource.")
             .AddExternalUri(m => m.Id, "https://my-domain.com/api/books/", "Custom Domain External Link")
             .AddExternalUri(m => $"/search?q={m.Title}", "https://google.com", "Google Search External Links", message: "This will do a search on Google engine.");
@@ -85,15 +88,17 @@ public class BookController : ControllerBase
 
 ```json
 {
-    "Id": "8f46d29e-6c0d-4511-85e7-b1d7ae42934a",
-    "Title": "The Girl Who Lived: A Thrilling Suspense Novel",
-    "Author": "Christopher Greyson",
-    "Tags": [
-        "Fiction",
-        "Crime",
-        "Murder",
-        "Thriller"
-    ],
+    "data": {
+        "Id": "8f46d29e-6c0d-4511-85e7-b1d7ae42934a",
+        "Title": "The Girl Who Lived: A Thrilling Suspense Novel",
+        "Author": "Christopher Greyson",
+        "Tags": [
+            "Fiction",
+            "Crime",
+            "Murder",
+            "Thriller"
+        ]
+    },
     "links": [
         {
             "method": "GET",
@@ -138,7 +143,7 @@ public class BookController : ControllerBase
 }
 ```
 
-## Features
+## Original Features
 
 - Collections result with links,
 - Json.NET and System.Text.Json settings support,
@@ -149,6 +154,11 @@ public class BookController : ControllerBase
 - Configuration with Lambda Expression,
 - Attribute Routing support, and
 - Conventional Routing support.
+
+## J3antov4r Features
+
+- Now original model object are into "data" json property
+- Added new Policy to add Links at Collection Level
 
 ### Roadmap
 

@@ -41,6 +41,7 @@ namespace Sciensoft.Hateoas.WebSample
 								.AddSelf(m => m.Id, "This is a GET self link.")
 								.AddRoute(m => m.Id, BookController.UpdateBookById)
 								.AddRoute(m => m.Id, BookController.DeleteBookById)
+								.AddCollectionLevel(m=> m, BookController.CreateNewBook, method: HttpMethods.Post, message: "Creates new resource.")
 								.AddCustomPath(m => m.Id, "Edit", method: HttpMethods.Post, message: "Edits resource")
 								.AddCustomPath(m => $"/change/resource/state/?id={m.Id}", "ChangeResourceState", method: HttpMethods.Post, message: "Any operation in your resource.")
 								.AddExternalUri(m => m.Id, "https://my-domain.com/api/books/", "Custom Domain External Link")

@@ -13,6 +13,7 @@ namespace Sciensoft.Hateoas.WebSample.Controllers
 	{
 		public const string UpdateBookById = nameof(UpdateBookById);
 		public const string DeleteBookById = nameof(DeleteBookById);
+		public const string CreateNewBook = nameof(CreateNewBook);
 
 		[HttpGet]
 		public ActionResult<IEnumerable<BookViewModel>> Get()
@@ -31,7 +32,7 @@ namespace Sciensoft.Hateoas.WebSample.Controllers
 			return model.Value;
 		}
 
-		[HttpPost]
+		[HttpPost(Name = CreateNewBook)]
 		public IActionResult Post([FromBody] BookViewModel book)
 		{
 			Debug.Assert(book != null);

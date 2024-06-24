@@ -28,11 +28,19 @@ namespace Sciensoft.Hateoas.Extensions
 
 			var originalValues = new Dictionary<string, object>();
 
-			foreach (var property in originalType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+			if (originalModel is IEnumerable<object> collection)
 			{
-				CreateProperty(typeBuilder, property.Name, property.PropertyType);
-				originalValues.TryAdd(property.Name, property.GetValue(originalModel));
+				//create a embedded property with the collection type and set all items into the embedded property
+				CreateProperty(typeBuilder, "Embedded", collection.GetType());
+				originalValues.TryAdd("Embedded", collection);
 			}
+			else
+			{
+				//create a property with the original type and set the original model into the Data property
+				CreateProperty(typeBuilder, "Data", originalType);
+				originalValues.TryAdd("Data", originalModel);
+			}
+
 
 			CreateProperty(typeBuilder, "Links", links.GetType());
 

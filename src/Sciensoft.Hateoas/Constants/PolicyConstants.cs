@@ -11,5 +11,7 @@
         public const string Delete = nameof(Delete);
 
         public const string Custom_ = nameof(Custom_);
+
+        public const string CollectionLevel = nameof(CollectionLevel);
     }
 }

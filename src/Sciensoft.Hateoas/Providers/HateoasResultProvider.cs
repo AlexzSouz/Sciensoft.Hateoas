@@ -54,7 +54,7 @@ namespace Sciensoft.Hateoas.Providers
 			{
 				var links = new List<object>();
 
-				foreach (var policy in policies.Where(p => p != null))
+				foreach (var policy in policies.Where(p => p != null && !(p is InMemoryPolicyRepository.CollectionLevelPolicy)))
 				{
 					var lambdaResult = GetLambdaResult(policy.Expression, item);
 					var link = await GetPolicyLinkAsync(policy, lambdaResult).ConfigureAwait(false);
@@ -75,8 +75,23 @@ namespace Sciensoft.Hateoas.Providers
 			{
 				var links = await Task.WhenAll(collection.Select(item => GetFinalJsonPayloadAsync(item))).ConfigureAwait(false);
 				var json = new List<object>(links);
-
+				
 				content = new JsonResult(json);
+
+				//add collection level links if any
+				var collectionLevelPolicies = policies.Where(p => p is InMemoryPolicyRepository.CollectionLevelPolicy);
+				if (collectionLevelPolicies.Any())
+				{
+					var collectionLinks = new List<object>();
+					foreach (var policy in collectionLevelPolicies)
+					{
+						var lambdaResult = GetLambdaResult(policy.Expression, collection);
+						var link = await GetPolicyLinkAsync(policy, lambdaResult).ConfigureAwait(false);
+						collectionLinks.Add(link);
+					}
+					//modify the content to include the collection level links at the root
+					content = new JsonResult(content.Value.ToFinalPayload(collectionLinks));
+				}
 			}
 			else
 			{
@@ -121,9 +136,17 @@ namespace Sciensoft.Hateoas.Providers
 			var body = lambdaExpression.Body;
 			var parameter = lambdaExpression.Parameters[0];
 
+			//verificar si sourcePayload es IEnumerable, Array o ICollection
+			//si eas asi entoces cambiar sourcePayload por sourcePayload.First()
+			if(sourcePayload is IEnumerable<object> collection)
+			{
+				sourcePayload = collection.First();
+			}
+
 			return Expression.Lambda(body, parameter).Compile().DynamicInvoke(sourcePayload);
 		}
 
+		
 		private IEnumerable<InMemoryPolicyRepository.Policy> GetFilteredPolicies(ObjectResult result)
 		{
 			string resultType = result.Value.GetType().FullName;

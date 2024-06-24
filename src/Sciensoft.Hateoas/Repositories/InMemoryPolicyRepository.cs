@@ -113,5 +113,22 @@ namespace Sciensoft.Hateoas.Repositories
 				Hosts = new[] { host };
 			}
 		}
+
+		//added by me
+		internal class CollectionLevelPolicy : Policy
+		{
+			public CollectionLevelPolicy(Type type, Expression expression, string routeName, [CallerMemberName] string memberName = null)
+				: base(type, expression, routeName, memberName)
+			{ 
+				if (string.IsNullOrWhiteSpace(routeName))
+				{
+					throw new ArgumentNullException(nameof(routeName));
+				}
+
+				RouteName = routeName;
+			}
+
+			public string RouteName { get; }
+		}
 	}
 }
